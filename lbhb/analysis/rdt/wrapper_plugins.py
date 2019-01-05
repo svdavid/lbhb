@@ -15,5 +15,5 @@ def rdtsev(key):
 
 def rdtfmt(key):
 
-    xfspec = [['lbhb.analysis.rdt.preprocessing.format_keywordstring', {}]]
+    xfspec = [['lbhb.analysis.rdt.xforms.format_keywordstring', {}]]
     return xfspec

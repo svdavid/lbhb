@@ -4,17 +4,22 @@ from lbhb.analysis.rdt import plugins
 os.environ['KEYWORD_PLUGINS'] = f'["{plugins.__file__}"]'
 
 from nems import xforms
+import nems_db.xform_wrappers as nw
 
-batch, cell = 269, 'chn019a-a1'
-#batch, cell = 269, 'oys042c-d1'
-#batch, cell = 273, 'chn041d-b1'
-#batch, cell = 273, 'zee027b-c1'
+batch, cellid = 269, 'chn019a-a1'
+#batch, cellid = 269, 'oys042c-d1'
+#batch, cellid = 273, 'chn041d-b1'
+#batch, cellid = 273, 'zee027b-c1'
 #modelspec = 'RDTwcg18x2-RDTfir2x15_RDTstreamgain_lvl1_dexp1'
 #keywordstring = 'dlog-wc.18x1.g-fir.1x15-lvl.1'
-keywordstring = 'rdtwc.18x1.g-rdtfir.1x15-rdtgain.global.{n_targets}-lvl.1'
+keywordstring = 'rdtwc.18x1.g-rdtfir.1x15-rdtgain.global.{ntargets}-lvl.1'
 
+modelname = 'rdtld-rdtsev-rdtfmt_' + keywordstring + '_init-basic'
+savefile = nw.fit_model_xforms_baphy(cellid, batch, modelname, saveInDB=False)
+
+"""
 xfspec = [
-    ('nems.xforms.init_context', {'batch': batch, 'cell': cell, 'cellid': cell, 'keywordstring': keywordstring}),
+    ('nems.xforms.init_context', {'batch': batch, 'cellid': cellid, 'keywordstring': keywordstring}),
     ('lbhb.analysis.rdt.io.load_recording', {}),
     ('lbhb.analysis.rdt.preprocessing.split_est_val', {}),
     ('lbhb.analysis.rdt.xforms.format_keywordstring', {}),
@@ -30,3 +35,4 @@ xfspec = [
 context = {}
 for step in xfspec:
     context = xforms.evaluate_step(step, context)
+"""

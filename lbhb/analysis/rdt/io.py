@@ -226,11 +226,11 @@ def reformat_RDT_recording(recording):
 
 
 @memory.cache
-def load_recording(batch=None, cell=None, reformat=True, by_sequence=True, **context):
+def load_recording(batch=None, cellid=None, reformat=True, by_sequence=True, **context):
     from nems.recording import load_recording
 
     options = {
-        'cellid': cell,
+        'cellid': cellid,
         'batch': batch,
         'rasterfs': 100,
         'includeprestim': 1,

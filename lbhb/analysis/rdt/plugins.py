@@ -37,7 +37,6 @@ def rdtgain(kw):
         return _relative_gain_spec(n_targets)
 
 
-
 def rdtwc(kw):
     from nems.plugins import default_keywords
     kw = kw[3:]

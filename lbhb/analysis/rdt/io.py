@@ -12,8 +12,8 @@ from nems_db.baphy import baphy_data_path
 
 from joblib import Memory
 
-#tmpdir = '/tmp/nems'
-tmpdir = '/auto/data/tmp'
+tmpdir = '/tmp/nems'
+#tmpdir = '/auto/data/tmp'
 if not os.path.exists(tmpdir):
     os.makedirs(tmpdir, exist_ok=True)
 memory = Memory(cachedir=tmpdir)
@@ -226,7 +226,7 @@ def reformat_RDT_recording(recording):
 
 
 @memory.cache
-def load_recording(batch, cell, reformat=True, by_sequence=True):
+def load_recording(batch=None, cell=None, reformat=True, by_sequence=True, **context):
     from nems.recording import load_recording
 
     options = {
@@ -243,8 +243,9 @@ def load_recording(batch, cell, reformat=True, by_sequence=True):
         'recache': False,
     }
 
-    path = baphy_data_path(options, cell, batch)
+    path = baphy_data_path(**options)
     recording = load_recording(path)
+
     if reformat:
         recording = reformat_RDT_recording(recording)
 

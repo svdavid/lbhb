@@ -68,7 +68,7 @@ def get_est_val_times(recording, balance_phase=False):
     return est_times, val_times
 
 
-def split_est_val(recording, balance_phase=False):
+def split_est_val(recording, balance_phase=False, **context):
     est_times, val_times = get_est_val_times(recording, balance_phase)
     return {
         'rand': select_times(recording, est_times, random_only=True, dual_only=True),

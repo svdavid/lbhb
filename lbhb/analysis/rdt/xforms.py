@@ -1,5 +1,5 @@
-def format_keywordstring(recording, keywordstring=None, **context):
-    n_targets = recording.meta['n_targets']
+def format_keywordstring(rec, keywordstring=None, **context):
+    n_targets = rec.meta['n_targets']
     return {
         'keywordstring': keywordstring.format(ntargets=n_targets),
     }

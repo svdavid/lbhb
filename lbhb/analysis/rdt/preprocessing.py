@@ -43,11 +43,11 @@ def select_balanced_targets(epochs, rng):
     return keep
 
 
-def get_est_val_times(recording, balance_phase=False):
+def get_est_val_times(rec, balance_phase=False):
     rng = np.random.RandomState(0)
 
-    epochs = recording.epochs
-    est_times, val_times = get_est_val_times_by_sequence(recording, rng)
+    epochs = rec.epochs
+    est_times, val_times = get_est_val_times_by_sequence(rec, rng)
 
     if balance_phase:
         target_times = select_balanced_targets(epochs, rng)
@@ -68,25 +68,25 @@ def get_est_val_times(recording, balance_phase=False):
     return est_times, val_times
 
 
-def split_est_val(recording, balance_phase=False, **context):
-    est_times, val_times = get_est_val_times(recording, balance_phase)
+def split_est_val(rec, balance_phase=False, **context):
+    est_times, val_times = get_est_val_times(rec, balance_phase)
     return {
-        'rand': select_times(recording, est_times, random_only=True, dual_only=True),
-        'est': select_times(recording, est_times, random_only=False, dual_only=True),
-        'val': select_times(recording, val_times, random_only=False, dual_only=True),
+        'rand': select_times(rec, est_times, random_only=True, dual_only=True),
+        'est': select_times(rec, est_times, random_only=False, dual_only=True),
+        'val': select_times(rec, val_times, random_only=False, dual_only=True),
     }
 
 
-def get_est_val_times_by_sequence(recording, rng):
-    epochs = recording.epochs
+def get_est_val_times_by_sequence(rec, rng):
+    epochs = rec.epochs
     m = epochs['name'].str.match('^SEQUENCE')
     sequences = epochs.loc[m, 'name'].unique()
 
     s_map = {}
     for s in sequences:
-        tid = recording['target_id_map'].extract_epoch(s).ravel()[0]
+        tid = rec['target_id_map'].extract_epoch(s).ravel()[0]
         tid = int(tid)
-        is_ds = recording['dual_stream'].extract_epoch(s).ravel()[0]
+        is_ds = rec['dual_stream'].extract_epoch(s).ravel()[0]
         is_ds = bool(is_ds)
         s_map.setdefault((tid, is_ds), []).append(s)
 
@@ -107,26 +107,26 @@ def get_est_val_times_by_sequence(recording, rng):
     return est_times, val_times
 
 
-def shuffle_streams(recording):
-    fg = recording['fg'].as_continuous().copy()
-    bg = recording['bg'].as_continuous().copy()
+def shuffle_streams(rec):
+    fg = rec['fg'].as_continuous().copy()
+    bg = rec['bg'].as_continuous().copy()
     i_all = np.arange(fg.shape[-1])
     n = round(fg.shape[-1]/2)
     np.random.shuffle(i_all)
     i_switch = i_all[:n]
     fg[:, i_switch], bg[:, i_switch] = bg[:, i_switch], fg[:, i_switch]
 
-    s = recording['fg']
-    recording['fg'] = s._modified_copy(fg)
-    recording['bg'] = s._modified_copy(bg)
-    return recording
+    s = rec['fg']
+    rec['fg'] = s._modified_copy(fg)
+    rec['bg'] = s._modified_copy(bg)
+    return rec
 
 
-def select_times(recording, subset, random_only=True, dual_only=True):
+def select_times(rec, subset, random_only=True, dual_only=True):
     '''
     Parameters
     ----------
-    recording : nems.recording.Recording
+    rec : nems.recording.Recording
         The recording object.
     subset : Nx2 array
         Epochs representing the selected subset (e.g., from an est/val split).
@@ -135,7 +135,7 @@ def select_times(recording, subset, random_only=True, dual_only=True):
     dual_only : bool
         If True, return only the dual stream portion of the subset
     '''
-    epochs = recording['stim'].epochs
+    epochs = rec['stim'].epochs
 
     m_dual = epochs['name'] == 'dual'
     m_repeating = epochs['name'] == 'repeating'
@@ -151,4 +151,4 @@ def select_times(recording, subset, random_only=True, dual_only=True):
     if dual_only:
         subset = epoch_intersection(subset, dual_epochs)
 
-    return recording.select_times(subset)
+    return rec.select_times(subset)

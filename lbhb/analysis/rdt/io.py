@@ -183,10 +183,10 @@ def reformat_epochs(epochs, target_id):
 
 
 @memory.cache
-def reformat_RDT_recording(recording):
-    epochs = recording['stim'].epochs
-    state = recording['state']
-    target_id = recording['state'].loc['target_id']
+def reformat_RDT_recording(rec):
+    epochs = rec['stim'].epochs
+    state = rec['state']
+    target_id = rec['state'].loc['target_id']
 
     epochs = reformat_epochs(epochs, target_id)
 
@@ -207,22 +207,22 @@ def reformat_RDT_recording(recording):
     x_mapped[m] = 0
     x_mapped = x_mapped.astype('i')
 
-    recording['target_id_map'] = target_id._modified_copy(x_mapped)
-    recording['target_id_map'].meta = {'target_map': target_map}
-    recording.meta = {'n_targets': len(targets)}
+    rec['target_id_map'] = target_id._modified_copy(x_mapped)
+    rec['target_id_map'].meta = {'target_map': target_map}
+    rec.meta = {'n_targets': len(targets)}
 
-    resp = recording['resp']
-    recording['resp'] = resp._modified_copy(resp._data[..., :-1])
+    resp = rec['resp']
+    rec['resp'] = resp._modified_copy(resp._data[..., :-1])
 
-    recording['dual_stream'] = state.loc['dual_stream']
-    #recording['repeating'] = state.loc['repeating']
+    rec['dual_stream'] = state.loc['dual_stream']
+    #rec['repeating'] = state.loc['repeating']
 
-    for s in recording.signals.values():
+    for s in rec.signals.values():
         s.epochs = epochs
 
-    recording['repeating'] = recording['stim'].epoch_to_signal('repeating')
+    rec['repeating'] = rec['stim'].epoch_to_signal('repeating')
 
-    return recording
+    return rec
 
 
 @memory.cache
@@ -244,43 +244,43 @@ def load_recording(batch=None, cellid=None, reformat=True, by_sequence=True, **c
     }
 
     path = baphy_data_path(**options)
-    recording = load_recording(path)
+    rec = load_recording(path)
 
     if reformat:
-        recording = reformat_RDT_recording(recording)
+        rec = reformat_RDT_recording(rec)
 
     if by_sequence:
-        recording = average_away_epoch_occurrences(recording, '^SEQUENCE')
+        rec = average_away_epoch_occurrences(rec, '^SEQUENCE')
 
-    return {'recording': recording}
+    return {'rec': rec}
 
 
-def remove_nan(recording):
-    i = np.isnan(recording['fg'].as_continuous())
+def remove_nan(rec):
+    i = np.isnan(rec['fg'].as_continuous())
     new_signals = {}
-    for name, signal in recording.items():
+    for name, signal in rec.items():
         new_data = signal.as_continuous()[:, i]
         new_signals[name] = signal._modified_copy(new_data)
     return Recording(new_signals)
 
 
 if __name__ == '__main__':
-    recording = load_recording('269', 'zee021e-c1')
+    rec = load_recording('269', 'zee021e-c1')
 
     #import itertools
     #import pylab as pl
 
-    #epochs = recording['fg'].extract_epoch('03')
+    #epochs = rec['fg'].extract_epoch('03')
     #f, axes = pl.subplots(4, 4)
     #for i, ax in zip(range(16), itertools.chain(*axes)):
     #    ax.imshow(epochs[i])
 
-    #epochs = recording['bg'].extract_epoch('03')
+    #epochs = rec['bg'].extract_epoch('03')
     #f, axes = pl.subplots(4, 4)
     #for i, ax in zip(range(16), itertools.chain(*axes)):
     #    ax.imshow(epochs[i])
 
-    #epochs = recording['resp'].extract_epoch('03')
+    #epochs = rec['resp'].extract_epoch('03')
     #f, axes = pl.subplots(4, 4)
     #for i, ax in zip(range(16), itertools.chain(*axes)):
     #    ax.plot(epochs[i, 0])

@@ -1,5 +1,6 @@
 def format_keywordstring(rec, keywordstring=None, **context):
     n_targets = rec.meta['n_targets']
+    keywordstring = keywordstring.replace('NTARGETS',str(n_targets))
     return {
         'keywordstring': keywordstring.format(ntargets=n_targets),
     }
